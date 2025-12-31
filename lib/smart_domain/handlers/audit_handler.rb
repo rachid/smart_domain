@@ -117,17 +117,15 @@ module SmartDomain
         return unless defined?(AuditEvent)
 
         AuditEvent.create!(
-          event_type: event.event_type.upcase.tr(".", "_"),
-          event_category: map_event_category(event.event_type),
-          user_id: extract_actor_id(event),
+          event_id: event.event_id,
+          event_type: event.event_type,
+          aggregate_id: event.aggregate_id,
+          aggregate_type: event.aggregate_type,
           organization_id: event.organization_id,
-          ip_address: extract_ip_address(event),
-          user_agent: extract_user_agent(event),
-          old_values: extract_old_values(event),
-          new_values: extract_new_values(event),
-          occurred_at: event.occurred_at,
+          category: map_event_category(event.event_type),
           risk_level: assess_risk_level(event.event_type),
-          compliance_flags: build_compliance_flags(event)
+          event_data: event.to_h,
+          occurred_at: event.occurred_at
         )
       rescue StandardError => e
         @logger.warn "[SmartDomain::AuditHandler] Failed to write to audit table: #{e.message}"
@@ -138,7 +136,7 @@ module SmartDomain
       # @return [String] Audit category
       def map_event_category(event_type)
         case event_type
-        when /^auth\./
+        when /^auth\.|logged_in|logged_out|login|logout|authenticated|password/
           "authentication"
         when /accessed|viewed|patient\./
           "data_access"

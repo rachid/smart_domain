@@ -47,7 +47,14 @@ module SmartDomain
         metric_name = build_metric_name(event)
         tags = build_metric_tags(event)
 
+        # Emit counter metric
         emit_metric(metric_name, tags)
+
+        # Emit timing metric if duration is present
+        if event.respond_to?(:duration) && event.duration
+          timing_name = "#{metric_name}.duration"
+          emit_metric(timing_name, tags.merge(duration_ms: event.duration))
+        end
       rescue StandardError => e
         # Never fail on metrics handler errors
         @logger.warn "[SmartDomain::MetricsHandler] Metrics collection failed: #{e.message}"

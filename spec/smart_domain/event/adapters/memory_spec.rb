@@ -182,6 +182,8 @@ RSpec.describe SmartDomain::Event::Adapters::Memory do
       logger = instance_double(Logger)
       allow(SmartDomain.configuration).to receive(:logger).and_return(logger)
       allow(logger).to receive(:info)
+      allow(logger).to receive(:debug)
+      allow(logger).to receive(:error)
 
       adapter.subscribe("test.event", failing_handler)
 
@@ -193,7 +195,7 @@ RSpec.describe SmartDomain::Event::Adapters::Memory do
         message: "hello"
       )
 
-      expect(logger).to receive(:error).with(/Error in event handler/)
+      expect(logger).to receive(:error).with(/Error in event handler/).at_least(:once)
 
       adapter.publish(event)
     end
@@ -210,7 +212,7 @@ RSpec.describe SmartDomain::Event::Adapters::Memory do
         message: "hello"
       )
 
-      expect(logger).to receive(:info).with(/Publishing event: test.event/)
+      expect(logger).to receive(:debug).with(/No handlers for event type: test.event/)
 
       adapter.publish(event)
     end

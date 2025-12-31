@@ -103,7 +103,7 @@ RSpec.describe SmartDomain::Event::Registration do
       subscribers = SmartDomain::Event.bus.adapter.instance_variable_get(:@handlers)
 
       # Should have no subscribers for this event
-      expect(subscribers["test.event"]).to be_nil
+      expect(subscribers["test.event"]).to be_empty
     end
 
     it "uses domain-specific handler instances" do

@@ -18,7 +18,10 @@ module SmartDomain
       class Memory
         def initialize
           @handlers = Hash.new { |h, k| h[k] = [] }
-          @logger = ActiveSupport::TaggedLogging.new(Logger.new($stdout))
+        end
+
+        def logger
+          @logger ||= SmartDomain.configuration.logger
         end
 
         # Subscribe a handler to an event type
@@ -30,16 +33,30 @@ module SmartDomain
 
         # Publish an event to all subscribed handlers
         # @param event [SmartDomain::Event::Base] Event to publish
+        # @raise [ValidationError] If event is invalid
         def publish(event)
+          # Validate event before publishing
+          unless event.is_a?(SmartDomain::Event::Base)
+            raise SmartDomain::Event::ValidationError, "Event must be a SmartDomain::Event::Base"
+          end
+
+          begin
+            unless event.valid?
+              raise SmartDomain::Event::ValidationError, "Invalid event: #{event.errors.full_messages.join(', ')}"
+            end
+          rescue NoMethodError => e
+            raise SmartDomain::Event::ValidationError, "Malformed event: #{e.message}"
+          end
+
           # Find all matching handlers (exact match + wildcard patterns)
           matching_handlers = find_matching_handlers(event.event_type)
 
           if matching_handlers.empty?
-            @logger.debug "[SmartDomain::Memory] No handlers for event type: #{event.event_type}"
+            logger.debug "[SmartDomain::Memory] No handlers for event type: #{event.event_type}"
             return
           end
 
-          @logger.debug "[SmartDomain::Memory] Notifying #{matching_handlers.size} handler(s) for #{event.event_type}"
+          logger.debug "[SmartDomain::Memory] Notifying #{matching_handlers.size} handler(s) for #{event.event_type}"
 
           matching_handlers.each do |handler|
             handle_event(handler, event)
@@ -100,8 +117,8 @@ module SmartDomain
         def handle_event(handler, event)
           handler.handle(event)
         rescue StandardError => e
-          @logger.error "[SmartDomain::Memory] Handler #{handler.class.name} failed: #{e.message}"
-          @logger.error e.backtrace.join("\n")
+          logger.error "[SmartDomain::Memory] Error in event handler #{handler.class.name}: #{e.message}"
+          logger.error e.backtrace.join("\n")
           # Swallow exception to not affect other handlers
         end
       end

@@ -171,7 +171,7 @@ RSpec.describe SmartDomain::Event::Base do
           user_id: "user-1",
           email: "test@example.com"
         )
-      end.to raise_error(SmartDomain::Event::ValidationError, /Aggregate can't be blank/)
+      end.to raise_error(SmartDomain::Event::ValidationError, /Aggregate (id )?can't be blank/)
     end
 
     it "raises error for missing aggregate_type" do
@@ -183,7 +183,7 @@ RSpec.describe SmartDomain::Event::Base do
           user_id: "user-1",
           email: "test@example.com"
         )
-      end.to raise_error(SmartDomain::Event::ValidationError, /Aggregate can't be blank/)
+      end.to raise_error(SmartDomain::Event::ValidationError, /Aggregate type can't be blank/)
     end
 
     it "raises error for invalid custom validations" do
@@ -349,6 +349,7 @@ RSpec.describe SmartDomain::Event::Bus do
     it "logs published events" do
       logger = instance_double(Logger)
       allow(SmartDomain.configuration).to receive(:logger).and_return(logger)
+      allow(logger).to receive(:debug)
 
       event = SimpleEvent.new(
         event_type: "test.event",
@@ -358,7 +359,7 @@ RSpec.describe SmartDomain::Event::Bus do
         message: "hello"
       )
 
-      expect(logger).to receive(:info).with(/Publishing event: test.event/)
+      expect(logger).to receive(:info).with(/Publishing event: test.event/).at_least(:once)
 
       bus.publish(event)
     end

@@ -89,6 +89,14 @@ module SmartDomain
         attribute :changed_fields, default: -> { [] }
         attribute :old_values, default: -> { {} }
         attribute :new_values, default: -> { {} }
+
+        validate :changed_fields_must_not_be_empty
+
+        private
+
+        def changed_fields_must_not_be_empty
+          errors.add(:changed_fields, "can't be blank") if changed_fields.blank? || changed_fields.empty?
+        end
       end
 
       # Helper to extract changes from an ActiveRecord model
@@ -150,6 +158,8 @@ module SmartDomain
 
       included do
         attribute :reason, :string
+
+        validates :reason, presence: true
       end
     end
   end

@@ -7,6 +7,9 @@ require "logger"
 
 module SmartDomain
   module Event
+    # Validation error for domain events
+    class ValidationError < StandardError; end
+
     # Base class for all domain events in the system.
     #
     # Domain events represent significant business occurrences that other
@@ -58,7 +61,9 @@ module SmartDomain
       def initialize(attributes = {})
         super
         freeze_event
-        validate!
+        return if valid?
+
+        raise ValidationError, "Event validation failed: #{errors.full_messages.join(', ')}"
       end
 
       # Convert event to hash
@@ -101,13 +106,16 @@ module SmartDomain
     #   event = UserCreatedEvent.new(...)
     #   bus.publish(event)
     class Bus
-      attr_reader :adapter, :logger
+      attr_reader :adapter
 
       # Initialize event bus with optional adapter
       # @param adapter [Object, Symbol] Event bus adapter or adapter name (default: Memory adapter)
       def initialize(adapter: nil)
         @adapter = resolve_adapter(adapter)
-        @logger = ActiveSupport::TaggedLogging.new(Logger.new($stdout))
+      end
+
+      def logger
+        @logger ||= SmartDomain.configuration.logger
       end
 
       # Subscribe a handler to a specific event type
@@ -115,7 +123,7 @@ module SmartDomain
       # @param handler [Object] Handler object that responds to #handle(event)
       def subscribe(event_type, handler)
         @adapter.subscribe(event_type, handler)
-        @logger.info "[SmartDomain] Event handler subscribed: #{handler.class.name} -> #{event_type}"
+        logger.info "[SmartDomain] Event handler subscribed: #{handler.class.name} -> #{event_type}"
       end
 
       # Publish an event to all registered handlers
@@ -124,8 +132,8 @@ module SmartDomain
       def publish(event)
         validate_event!(event)
 
-        @logger.info "[SmartDomain] Publishing event: #{event.event_type} (#{event.event_id})"
-        @logger.debug "[SmartDomain] Event details: #{event.to_h}"
+        logger.info "[SmartDomain] Publishing event: #{event.event_type} (#{event.event_id})"
+        logger.debug "[SmartDomain] Event details: #{event.to_h}"
 
         @adapter.publish(event)
       end
@@ -149,15 +157,20 @@ module SmartDomain
 
       # Validate event before publishing
       # @param event [Object] Event to validate
-      # @raise [ArgumentError] If event is not valid
+      # @raise [ArgumentError] If event is not a Base instance
+      # @raise [ValidationError] If event validation fails
       def validate_event!(event)
         unless event.is_a?(Base)
           raise ArgumentError, "Event must be a SmartDomain::Event::Base, got #{event.class.name}"
         end
 
-        return if event.valid?
+        begin
+          return if event.valid?
 
-        raise ArgumentError, "Event validation failed: #{event.errors.full_messages.join(', ')}"
+          raise ValidationError, "Event validation failed: #{event.errors.full_messages.join(', ')}"
+        rescue NoMethodError => e
+          raise ValidationError, "Malformed event: #{e.message}"
+        end
       end
     end
 

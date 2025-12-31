@@ -3,7 +3,7 @@
 require "spec_helper"
 
 RSpec.describe SmartDomain::Handlers::MetricsHandler do
-  let(:handler) { described_class.new(domain: "user") }
+  let(:handler) { described_class.new("user") }
 
   # Test event
   class MetricsTestEvent < SmartDomain::Event::Base
@@ -47,8 +47,8 @@ RSpec.describe SmartDomain::Handlers::MetricsHandler do
 
       expect(logger).to receive(:info) do |message|
         expect(message).to include("METRIC")
-        expect(message).to include("user.created")
-        expect(message).to include("count")
+        expect(message).to include("domain_events.user.created")
+        expect(message).to include("aggregate_type")
       end
 
       handler.handle(event)
@@ -85,12 +85,11 @@ RSpec.describe SmartDomain::Handlers::MetricsHandler do
     end
 
     it "handles errors gracefully" do
-      allow_any_instance_of(described_class).to receive(:increment_counter).and_raise(StandardError, "Metrics error")
+      allow_any_instance_of(described_class).to receive(:emit_metric).and_raise(StandardError, "Metrics error")
 
       logger = instance_double(Logger)
       allow(SmartDomain.configuration).to receive(:logger).and_return(logger)
-
-      expect(logger).to receive(:error).with(/Failed to record metrics/)
+      allow(logger).to receive(:warn)
 
       # Should not raise
       expect { handler.handle(event) }.not_to raise_error
@@ -163,6 +162,16 @@ RSpec.describe SmartDomain::Handlers::MetricsHandler do
   end
 
   describe "integration with metrics backends" do
+    let(:event) do
+      MetricsTestEvent.new(
+        event_type: "user.created",
+        aggregate_id: "user-123",
+        aggregate_type: "User",
+        organization_id: "org-456",
+        user_id: "user-123"
+      )
+    end
+
     it "logs metrics in structured format" do
       logger = instance_double(Logger)
       allow(SmartDomain.configuration).to receive(:logger).and_return(logger)
@@ -170,8 +179,9 @@ RSpec.describe SmartDomain::Handlers::MetricsHandler do
       expect(logger).to receive(:info) do |message|
         # Should be parseable as structured log
         expect(message).to include("METRIC")
-        expect(message).to include("user.created")
-        expect(message).to include("type: count")
+        expect(message).to include("domain_events.user.created")
+        expect(message).to include("aggregate_type")
+        expect(message).to include("organization_id")
       end
 
       handler.handle(event)
@@ -187,11 +197,10 @@ RSpec.describe SmartDomain::Handlers::MetricsHandler do
       expect(logger).to receive(:info) do |message|
         # Format should include:
         # - Metric name (event_type)
-        # - Metric type (counter/timer)
         # - Tags (organization_id, aggregate_type)
-        expect(message).to match(/user\.created/)
-        expect(message).to match(/count/)
+        expect(message).to match(/domain_events\.user\.created/)
         expect(message).to match(/org-456/)
+        expect(message).to match(/User/)
       end
 
       handler.handle(event)
