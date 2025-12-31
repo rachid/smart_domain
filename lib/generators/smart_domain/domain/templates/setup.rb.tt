@@ -1,0 +1,27 @@
+# frozen_string_literal: true
+
+module <%= domain_module_name %>
+  # Setup event handlers for <%= file_name %> domain
+  #
+  # This file is automatically loaded by SmartDomain::Railtie
+  # when the Rails application starts.
+  def self.setup!
+    # Register standard handlers (audit and metrics)
+    # This one line replaces ~50 lines of boilerplate!
+    SmartDomain::Event::Registration.register_standard_handlers(
+      domain: '<%= file_name %>',
+      events: %w[created updated deleted],
+      include_audit: true,
+      include_metrics: true
+    )
+
+    # Register custom handlers here
+    # Example:
+    #
+    # email_handler = <%= class_name %>EmailHandler.new
+    # SmartDomain::Event.bus.subscribe('<%= file_name %>.created', email_handler)
+    # SmartDomain::Event.bus.subscribe('<%= file_name %>.updated', email_handler)
+
+    Rails.logger.info "[<%= domain_module_name %>] Domain setup complete"
+  end
+end

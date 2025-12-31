@@ -1,0 +1,28 @@
+===============================================================================
+
+ActiveDomain has been installed!
+
+Created files:
+  config/initializers/active_domain.rb  - Configuration
+  app/events/application_event.rb       - Base event class
+  app/policies/application_policy.rb    - Base policy class
+  app/services/application_service.rb   - Base service class
+
+Created directories:
+  app/domains/   - Domain modules go here
+  app/events/    - Domain events go here
+  app/handlers/  - Custom event handlers go here
+  app/policies/  - Domain policies go here
+  app/services/  - Domain services go here
+
+Next steps:
+
+1. Review and configure config/initializers/active_domain.rb
+
+2. Generate your first domain:
+   rails generate active_domain:domain User
+
+3. Read the documentation:
+   https://github.com/rachidalmaach/active_domain
+
+===============================================================================

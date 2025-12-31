@@ -1,0 +1,15 @@
+# frozen_string_literal: true
+
+# Event published when a <%= file_name %> is created
+class <%= class_name %>CreatedEvent < ApplicationEvent
+  include SmartDomain::Event::ActorMixin
+
+  attribute :<%= file_name %>_id, :string
+
+  validates :<%= file_name %>_id, presence: true
+
+  # Add domain-specific attributes here
+  # Example:
+  # attribute :email, :string
+  # attribute :name, :string
+end

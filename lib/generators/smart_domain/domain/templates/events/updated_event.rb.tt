@@ -1,0 +1,13 @@
+# frozen_string_literal: true
+
+# Event published when a <%= file_name %> is updated
+class <%= class_name %>UpdatedEvent < ApplicationEvent
+  include SmartDomain::Event::ActorMixin
+  include SmartDomain::Event::ChangeTrackingMixin
+
+  attribute :<%= file_name %>_id, :string
+
+  validates :<%= file_name %>_id, presence: true
+
+  # Add domain-specific attributes here if needed
+end

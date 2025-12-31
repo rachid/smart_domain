@@ -1,0 +1,49 @@
+# frozen_string_literal: true
+
+# Authorization policy for <%= class_name %>
+#
+# Define authorization rules for <%= file_name %> operations.
+# These methods are called from services and controllers.
+class <%= class_name %>Policy < ApplicationPolicy
+  # Can user view list of <%= plural_name %>?
+  def index?
+    user_present?
+  end
+
+  # Can user view this <%= file_name %>?
+  def show?
+    user_present? && (admin? || same_organization?)
+  end
+
+  # Can user create a <%= file_name %>?
+  def create?
+    user_present?
+  end
+
+  # Can user update this <%= file_name %>?
+  def update?
+    user_present? && (admin? || owner? || same_organization?)
+  end
+
+  # Can user delete this <%= file_name %>?
+  def destroy?
+    user_present? && (admin? || owner?)
+  end
+
+  # Scope for index queries
+  #
+  # Returns only <%= plural_name %> the user is authorized to see
+  class Scope < Scope
+    def resolve
+      if user.nil?
+        scope.none
+      elsif user.respond_to?(:admin?) && user.admin?
+        scope.all
+      elsif user.respond_to?(:organization_id)
+        scope.where(organization_id: user.organization_id)
+      else
+        scope.where(user_id: user.id)
+      end
+    end
+  end
+end

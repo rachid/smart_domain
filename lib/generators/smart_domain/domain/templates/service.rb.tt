@@ -1,0 +1,93 @@
+# frozen_string_literal: true
+
+module <%= domain_module_name %>
+  # Service for <%= class_name %> business logic
+  #
+  # This service encapsulates all business operations for <%= plural_name %>.
+  # Controllers should delegate to this service rather than directly
+  # manipulating <%= class_name %> models.
+  class <%= class_name %>Service < ApplicationService
+    # Create a new <%= file_name %>
+    #
+    # @param attributes [Hash] <%= class_name %> attributes
+    # @return [<%= class_name %>] Created <%= file_name %>
+    # @raise [SmartDomain::Domain::AlreadyExistsError] If <%= file_name %> already exists
+    # @raise [SmartDomain::Domain::ValidationError] If validation fails
+    def create_<%= file_name %>(attributes)
+      # Example business rule validation
+      # if <%= class_name %>.exists?(email: attributes[:email])
+      #   raise SmartDomain::Domain::AlreadyExistsError.new('<%= class_name %>', 'email', attributes[:email])
+      # end
+
+      <%= class_name %>.transaction do
+        <%= file_name %> = <%= class_name %>.create!(attributes)
+
+        # Event is published via ActiveRecord integration
+        # Or manually:
+        # event = build_event(<%= class_name %>CreatedEvent,
+        #   event_type: '<%= file_name %>.created',
+        #   aggregate_id: <%= file_name %>.id,
+        #   aggregate_type: '<%= class_name %>',
+        #   <%= file_name %>_id: <%= file_name %>.id
+        # )
+        # publish_after_commit(event)
+
+        log(:info, "<%= class_name %> created", <%= file_name %>_id: <%= file_name %>.id)
+        <%= file_name %>
+      end
+    end
+
+    # Update an existing <%= file_name %>
+    #
+    # @param <%= file_name %>_id [Integer, String] <%= class_name %> ID
+    # @param attributes [Hash] Attributes to update
+    # @return [<%= class_name %>] Updated <%= file_name %>
+    # @raise [ActiveRecord::RecordNotFound] If <%= file_name %> not found
+    # @raise [SmartDomain::Domain::UnauthorizedError] If not authorized
+    def update_<%= file_name %>(<%= file_name %>_id, attributes)
+      <%= file_name %> = <%= class_name %>.find(<%= file_name %>_id)
+
+      # Authorization check
+      policy = <%= class_name %>Policy.new(current_user, <%= file_name %>)
+      authorize!(policy, :update?)
+
+      <%= class_name %>.transaction do
+        <%= file_name %>.update!(attributes)
+
+        # Event published via ActiveRecord integration
+        log(:info, "<%= class_name %> updated", <%= file_name %>_id: <%= file_name %>.id, changes: <%= file_name %>.saved_changes.keys)
+        <%= file_name %>
+      end
+    end
+
+    # Delete a <%= file_name %>
+    #
+    # @param <%= file_name %>_id [Integer, String] <%= class_name %> ID
+    # @return [Boolean] True if deleted
+    # @raise [ActiveRecord::RecordNotFound] If <%= file_name %> not found
+    # @raise [SmartDomain::Domain::UnauthorizedError] If not authorized
+    def delete_<%= file_name %>(<%= file_name %>_id)
+      <%= file_name %> = <%= class_name %>.find(<%= file_name %>_id)
+
+      # Authorization check
+      policy = <%= class_name %>Policy.new(current_user, <%= file_name %>)
+      authorize!(policy, :destroy?)
+
+      <%= class_name %>.transaction do
+        <%= file_name %>.destroy!
+
+        # Event published via ActiveRecord integration
+        log(:info, "<%= class_name %> deleted", <%= file_name %>_id: <%= file_name %>_id)
+        true
+      end
+    end
+
+    # List <%= plural_name %> with policy scope
+    #
+    # @param scope [ActiveRecord::Relation] Optional base scope
+    # @return [ActiveRecord::Relation] Scoped <%= plural_name %>
+    def list_<%= plural_name %>(scope = <%= class_name %>.all)
+      policy_scope(scope, <%= class_name %>Policy)
+    end
+  end
+end
