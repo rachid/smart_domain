@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    active_domain (0.1.0)
+    smart_domain (0.1.1)
       activemodel (>= 7.0)
       activerecord (>= 7.0)
       activesupport (>= 7.0)
@@ -309,7 +309,6 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
-  active_domain!
   factory_bot_rails (~> 6.2)
   faker (~> 3.2)
   rake (~> 13.0)
@@ -318,6 +317,7 @@ DEPENDENCIES
   rubocop (~> 1.50)
   rubocop-rails (~> 2.19)
   rubocop-rspec (~> 2.20)
+  smart_domain!
   sqlite3 (>= 2.1)
 
 BUNDLED WITH
