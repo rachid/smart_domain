@@ -37,7 +37,7 @@ module SmartDomain
       # @param event [SmartDomain::Event::Base] Event to handle
       # @raise [NotImplementedError] If not implemented by subclass
       def handle(event)
-        raise NotImplementedError, "Subclasses must implement #handle(event)"
+        raise NotImplementedError, 'Subclasses must implement #handle(event)'
       end
 
       # Check if this handler can handle a specific event type
@@ -48,7 +48,7 @@ module SmartDomain
       # @param event_type [String] Event type to check
       # @return [Boolean] True if handler can handle this event type
       def can_handle?(event_type)
-        raise NotImplementedError, "Subclasses must implement #can_handle?(event_type)"
+        raise NotImplementedError, 'Subclasses must implement #can_handle?(event_type)'
       end
 
       # Handle event asynchronously using ActiveJob
@@ -64,9 +64,7 @@ module SmartDomain
           raise "ActiveJob is required for async event handling. Please require 'active_job' in your application."
         end
 
-        unless event.valid?
-          raise ValidationError, "Event validation failed: #{event.errors.full_messages.join(', ')}"
-        end
+        raise ValidationError, "Event validation failed: #{event.errors.full_messages.join(', ')}" unless event.valid?
 
         HandlerJob.perform_later(self.class.name, event.to_h)
       end

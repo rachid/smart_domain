@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "active_model"
-require "active_support/core_ext/object/blank"
-require "securerandom"
-require "logger"
+require 'active_model'
+require 'active_support/core_ext/object/blank'
+require 'securerandom'
+require 'logger'
 
 module SmartDomain
   module Event

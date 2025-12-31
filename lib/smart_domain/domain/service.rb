@@ -150,7 +150,7 @@ module SmartDomain
         attributes[:organization_id] ||= current_organization_id
 
         # Auto-fill actor fields if event includes ActorMixin
-        if event_class.instance_methods.include?(:actor_id)
+        if event_class.method_defined?(:actor_id)
           attributes[:actor_id] ||= current_user_id&.to_s
           attributes[:actor_email] ||= current_user&.email
         end

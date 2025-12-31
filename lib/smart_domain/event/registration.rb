@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "../handlers/audit_handler"
-require_relative "../handlers/metrics_handler"
+require_relative '../handlers/audit_handler'
+require_relative '../handlers/metrics_handler'
 
 module SmartDomain
   module Event
@@ -86,8 +86,8 @@ module SmartDomain
         # Log what was registered
         if include_audit || include_metrics
           handlers_registered = []
-          handlers_registered << "audit" if include_audit
-          handlers_registered << "metrics" if include_metrics
+          handlers_registered << 'audit' if include_audit
+          handlers_registered << 'metrics' if include_metrics
 
           logger.info "[SmartDomain::Registration] Standard handlers registered for #{domain} domain: " \
                       "#{handlers_registered.join(', ')} (#{events.size} events)"

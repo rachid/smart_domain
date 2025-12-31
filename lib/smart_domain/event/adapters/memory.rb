@@ -37,7 +37,7 @@ module SmartDomain
         def publish(event)
           # Validate event before publishing
           unless event.is_a?(SmartDomain::Event::Base)
-            raise SmartDomain::Event::ValidationError, "Event must be a SmartDomain::Event::Base"
+            raise SmartDomain::Event::ValidationError, 'Event must be a SmartDomain::Event::Base'
           end
 
           begin
@@ -86,9 +86,7 @@ module SmartDomain
           handlers = []
 
           @handlers.each do |pattern, pattern_handlers|
-            if event_type_matches?(event_type, pattern)
-              handlers.concat(pattern_handlers)
-            end
+            handlers.concat(pattern_handlers) if event_type_matches?(event_type, pattern)
           end
 
           handlers.uniq
@@ -103,7 +101,7 @@ module SmartDomain
           return true if event_type == pattern
 
           # Wildcard pattern match (e.g., "user.*" matches "user.created")
-          if pattern.end_with?(".*")
+          if pattern.end_with?('.*')
             prefix = pattern[0..-3] # Remove ".*"
             return event_type.start_with?("#{prefix}.")
           end

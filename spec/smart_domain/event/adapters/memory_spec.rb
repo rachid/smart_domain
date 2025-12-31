@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 RSpec.describe SmartDomain::Event::Adapters::Memory do
   let(:adapter) { described_class.new }
@@ -14,7 +14,7 @@ RSpec.describe SmartDomain::Event::Adapters::Memory do
     end
 
     def can_handle?(event_type)
-      event_type.start_with?("test.")
+      event_type.start_with?('test.')
     end
 
     def handle(event)
@@ -27,50 +27,50 @@ RSpec.describe SmartDomain::Event::Adapters::Memory do
     attribute :message, :string
   end
 
-  describe "#subscribe" do
-    it "subscribes a handler to an event type" do
+  describe '#subscribe' do
+    it 'subscribes a handler to an event type' do
       handler = MemoryTestHandler.new
-      adapter.subscribe("test.event", handler)
+      adapter.subscribe('test.event', handler)
 
       subscribers = adapter.instance_variable_get(:@handlers)
-      expect(subscribers["test.event"]).to include(handler)
+      expect(subscribers['test.event']).to include(handler)
     end
 
-    it "allows multiple handlers for the same event type" do
+    it 'allows multiple handlers for the same event type' do
       handler1 = MemoryTestHandler.new
       handler2 = MemoryTestHandler.new
 
-      adapter.subscribe("test.event", handler1)
-      adapter.subscribe("test.event", handler2)
+      adapter.subscribe('test.event', handler1)
+      adapter.subscribe('test.event', handler2)
 
       subscribers = adapter.instance_variable_get(:@handlers)
-      expect(subscribers["test.event"]).to contain_exactly(handler1, handler2)
+      expect(subscribers['test.event']).to contain_exactly(handler1, handler2)
     end
 
-    it "maintains separate subscriptions for different event types" do
+    it 'maintains separate subscriptions for different event types' do
       handler1 = MemoryTestHandler.new
       handler2 = MemoryTestHandler.new
 
-      adapter.subscribe("test.created", handler1)
-      adapter.subscribe("test.updated", handler2)
+      adapter.subscribe('test.created', handler1)
+      adapter.subscribe('test.updated', handler2)
 
       subscribers = adapter.instance_variable_get(:@handlers)
-      expect(subscribers["test.created"]).to eq([handler1])
-      expect(subscribers["test.updated"]).to eq([handler2])
+      expect(subscribers['test.created']).to eq([handler1])
+      expect(subscribers['test.updated']).to eq([handler2])
     end
   end
 
-  describe "#publish" do
-    it "publishes event to subscribed handlers" do
+  describe '#publish' do
+    it 'publishes event to subscribed handlers' do
       handler = MemoryTestHandler.new
-      adapter.subscribe("test.event", handler)
+      adapter.subscribe('test.event', handler)
 
       event = MemoryAdapterTestEvent.new(
-        event_type: "test.event",
-        aggregate_id: "123",
-        aggregate_type: "Test",
-        organization_id: "org-1",
-        message: "hello"
+        event_type: 'test.event',
+        aggregate_id: '123',
+        aggregate_type: 'Test',
+        organization_id: 'org-1',
+        message: 'hello'
       )
 
       adapter.publish(event)
@@ -78,21 +78,21 @@ RSpec.describe SmartDomain::Event::Adapters::Memory do
       expect(handler.handled_events).to include(event)
     end
 
-    it "publishes to all matching handlers" do
+    it 'publishes to all matching handlers' do
       handler1 = MemoryTestHandler.new
       handler2 = MemoryTestHandler.new
       handler3 = MemoryTestHandler.new
 
-      adapter.subscribe("test.event", handler1)
-      adapter.subscribe("test.event", handler2)
-      adapter.subscribe("other.event", handler3)
+      adapter.subscribe('test.event', handler1)
+      adapter.subscribe('test.event', handler2)
+      adapter.subscribe('other.event', handler3)
 
       event = MemoryAdapterTestEvent.new(
-        event_type: "test.event",
-        aggregate_id: "123",
-        aggregate_type: "Test",
-        organization_id: "org-1",
-        message: "hello"
+        event_type: 'test.event',
+        aggregate_id: '123',
+        aggregate_type: 'Test',
+        organization_id: 'org-1',
+        message: 'hello'
       )
 
       adapter.publish(event)
@@ -102,24 +102,24 @@ RSpec.describe SmartDomain::Event::Adapters::Memory do
       expect(handler3.handled_events).to be_empty
     end
 
-    it "supports wildcard subscriptions" do
+    it 'supports wildcard subscriptions' do
       handler = MemoryTestHandler.new
-      adapter.subscribe("test.*", handler)
+      adapter.subscribe('test.*', handler)
 
       event1 = MemoryAdapterTestEvent.new(
-        event_type: "test.created",
-        aggregate_id: "123",
-        aggregate_type: "Test",
-        organization_id: "org-1",
-        message: "created"
+        event_type: 'test.created',
+        aggregate_id: '123',
+        aggregate_type: 'Test',
+        organization_id: 'org-1',
+        message: 'created'
       )
 
       event2 = MemoryAdapterTestEvent.new(
-        event_type: "test.updated",
-        aggregate_id: "123",
-        aggregate_type: "Test",
-        organization_id: "org-1",
-        message: "updated"
+        event_type: 'test.updated',
+        aggregate_id: '123',
+        aggregate_type: 'Test',
+        organization_id: 'org-1',
+        message: 'updated'
       )
 
       adapter.publish(event1)
@@ -128,9 +128,9 @@ RSpec.describe SmartDomain::Event::Adapters::Memory do
       expect(handler.handled_events).to include(event1, event2)
     end
 
-    it "validates events before publishing" do
+    it 'validates events before publishing' do
       handler = MemoryTestHandler.new
-      adapter.subscribe("test.event", handler)
+      adapter.subscribe('test.event', handler)
 
       invalid_event = MemoryAdapterTestEvent.allocate # Skip initialization
 
@@ -139,28 +139,28 @@ RSpec.describe SmartDomain::Event::Adapters::Memory do
       end.to raise_error(SmartDomain::Event::ValidationError)
     end
 
-    it "isolates handler errors" do
+    it 'isolates handler errors' do
       failing_handler = Class.new(SmartDomain::Event::Handler) do
-        def can_handle?(event_type)
+        def can_handle?(_event_type)
           true
         end
 
         def handle(_event)
-          raise StandardError, "Handler failed"
+          raise StandardError, 'Handler failed'
         end
       end.new
 
       successful_handler = MemoryTestHandler.new
 
-      adapter.subscribe("test.event", failing_handler)
-      adapter.subscribe("test.event", successful_handler)
+      adapter.subscribe('test.event', failing_handler)
+      adapter.subscribe('test.event', successful_handler)
 
       event = MemoryAdapterTestEvent.new(
-        event_type: "test.event",
-        aggregate_id: "123",
-        aggregate_type: "Test",
-        organization_id: "org-1",
-        message: "hello"
+        event_type: 'test.event',
+        aggregate_id: '123',
+        aggregate_type: 'Test',
+        organization_id: 'org-1',
+        message: 'hello'
       )
 
       # Should not raise, successful handler should still process
@@ -168,14 +168,14 @@ RSpec.describe SmartDomain::Event::Adapters::Memory do
       expect(successful_handler.handled_events).to include(event)
     end
 
-    it "logs handler errors" do
+    it 'logs handler errors' do
       failing_handler = Class.new(SmartDomain::Event::Handler) do
-        def can_handle?(event_type)
+        def can_handle?(_event_type)
           true
         end
 
         def handle(_event)
-          raise StandardError, "Handler failed"
+          raise StandardError, 'Handler failed'
         end
       end.new
 
@@ -185,14 +185,14 @@ RSpec.describe SmartDomain::Event::Adapters::Memory do
       allow(logger).to receive(:debug)
       allow(logger).to receive(:error)
 
-      adapter.subscribe("test.event", failing_handler)
+      adapter.subscribe('test.event', failing_handler)
 
       event = MemoryAdapterTestEvent.new(
-        event_type: "test.event",
-        aggregate_id: "123",
-        aggregate_type: "Test",
-        organization_id: "org-1",
-        message: "hello"
+        event_type: 'test.event',
+        aggregate_id: '123',
+        aggregate_type: 'Test',
+        organization_id: 'org-1',
+        message: 'hello'
       )
 
       expect(logger).to receive(:error).with(/Error in event handler/).at_least(:once)
@@ -200,16 +200,16 @@ RSpec.describe SmartDomain::Event::Adapters::Memory do
       adapter.publish(event)
     end
 
-    it "logs published events" do
+    it 'logs published events' do
       logger = instance_double(Logger)
       allow(SmartDomain.configuration).to receive(:logger).and_return(logger)
 
       event = MemoryAdapterTestEvent.new(
-        event_type: "test.event",
-        aggregate_id: "123",
-        aggregate_type: "Test",
-        organization_id: "org-1",
-        message: "hello"
+        event_type: 'test.event',
+        aggregate_id: '123',
+        aggregate_type: 'Test',
+        organization_id: 'org-1',
+        message: 'hello'
       )
 
       expect(logger).to receive(:debug).with(/No handlers for event type: test.event/)
@@ -218,8 +218,8 @@ RSpec.describe SmartDomain::Event::Adapters::Memory do
     end
   end
 
-  describe "synchronous execution" do
-    it "executes handlers synchronously" do
+  describe 'synchronous execution' do
+    it 'executes handlers synchronously' do
       execution_order = []
 
       handler1 = Class.new(SmartDomain::Event::Handler) do
@@ -237,21 +237,21 @@ RSpec.describe SmartDomain::Event::Adapters::Memory do
         end
       end.new
 
-      adapter.subscribe("test.event", handler1)
-      adapter.subscribe("test.event", handler2)
+      adapter.subscribe('test.event', handler1)
+      adapter.subscribe('test.event', handler2)
 
       event = MemoryAdapterTestEvent.new(
-        event_type: "test.event",
-        aggregate_id: "123",
-        aggregate_type: "Test",
-        organization_id: "org-1",
-        message: "hello"
+        event_type: 'test.event',
+        aggregate_id: '123',
+        aggregate_type: 'Test',
+        organization_id: 'org-1',
+        message: 'hello'
       )
 
       adapter.publish(event)
 
       # Handler2 should only execute after handler1 completes
-      expect(execution_order).to eq([:handler1, :handler2])
+      expect(execution_order).to eq(%i[handler1 handler2])
     end
   end
 end

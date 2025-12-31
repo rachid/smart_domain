@@ -1,0 +1,65 @@
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.0
+  SuggestExtensions: false
+  Exclude:
+    - 'vendor/**/*'
+    - 'bin/**/*'
+    - 'node_modules/**/*'
+    - 'examples/**/*'
+
+# Allow longer lines in tests
+Layout/LineLength:
+  Max: 120
+  Exclude:
+    - 'spec/**/*'
+
+# Allow long blocks in specs and rake tasks
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+    - '*.gemspec'
+    - 'lib/**/*.rake'
+
+# Allow longer methods for generators and complex logic
+Metrics/MethodLength:
+  Max: 30
+
+# Allow more complex methods
+Metrics/AbcSize:
+  Max: 30
+  Exclude:
+    - 'lib/generators/**/*'
+
+# Allow more cyclomatic complexity
+Metrics/CyclomaticComplexity:
+  Max: 10
+
+# Allow higher perceived complexity
+Metrics/PerceivedComplexity:
+  Max: 10
+
+# Allow longer classes for handlers
+Metrics/ClassLength:
+  Max: 150
+
+# Allow defining constants in test blocks
+Lint/ConstantDefinitionInBlock:
+  Exclude:
+    - 'spec/**/*'
+
+# Allow duplicate branches (false positives)
+Lint/DuplicateBranch:
+  Enabled: false
+
+# Allow development dependencies in gemspec
+Gemspec/DevelopmentDependencies:
+  Enabled: false
+
+# Allow more than one class per file in specs
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+# Don't require documentation for all classes
+Style/Documentation:
+  Enabled: false

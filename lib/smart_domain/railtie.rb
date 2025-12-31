@@ -12,8 +12,8 @@ module SmartDomain
 
     # Add generators to load path
     generators do
-      require_relative "generators/install_generator"
-      require_relative "generators/domain_generator"
+      require_relative 'generators/install_generator'
+      require_relative 'generators/domain_generator'
     end
 
     # Configuration hook
@@ -27,35 +27,35 @@ module SmartDomain
 
     # Rake tasks
     rake_tasks do
-      load "smart_domain/tasks/domains.rake"
+      load 'smart_domain/tasks/domains.rake'
     end
-
-    private
 
     # Load all domain setup files
     def self.load_domain_setups
-      setup_files = Dir[Rails.root.join("app/domains/**/setup.rb")]
+      setup_files = Dir[Rails.root.join('app/domains/**/setup.rb')]
 
       setup_files.each do |setup_file|
-        begin
-          require setup_file
+        require setup_file
 
-          # Extract domain module name from path
-          # e.g., app/domains/user_management/setup.rb -> UserManagement
-          domain_path = setup_file.gsub(Rails.root.join("app/domains/").to_s, "")
-          domain_name = domain_path.split("/").first.camelize
+        # Extract domain module name from path
+        # e.g., app/domains/user_management/setup.rb -> UserManagement
+        domain_path = setup_file.gsub(Rails.root.join('app/domains/').to_s, '')
+        domain_name = domain_path.split('/').first.camelize
 
-          # Call setup! method if defined
-          domain_module = domain_name.constantize rescue nil
-          if domain_module && domain_module.respond_to?(:setup!)
-            domain_module.setup!
-            Rails.logger.info "[SmartDomain] Loaded domain: #{domain_name}"
-          end
-        rescue StandardError => e
-          Rails.logger.error "[SmartDomain] Failed to load domain setup: #{setup_file}"
-          Rails.logger.error e.message
-          Rails.logger.error e.backtrace.join("\n")
+        # Call setup! method if defined
+        domain_module = begin
+          domain_name.constantize
+        rescue StandardError
+          nil
         end
+        if domain_module.respond_to?(:setup!)
+          domain_module.setup!
+          Rails.logger.info "[SmartDomain] Loaded domain: #{domain_name}"
+        end
+      rescue StandardError => e
+        Rails.logger.error "[SmartDomain] Failed to load domain setup: #{setup_file}"
+        Rails.logger.error e.message
+        Rails.logger.error e.backtrace.join("\n")
       end
     end
   end

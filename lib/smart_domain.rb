@@ -1,38 +1,38 @@
 # frozen_string_literal: true
 
-require "active_model"
-require "active_support"
-require "active_support/core_ext"
-require "active_record"
-require "logger"
+require 'active_model'
+require 'active_support'
+require 'active_support/core_ext'
+require 'active_record'
+require 'logger'
 
-require_relative "smart_domain/version"
-require_relative "smart_domain/configuration"
+require_relative 'smart_domain/version'
+require_relative 'smart_domain/configuration'
 
 # Event system
-require_relative "smart_domain/event/base"
-require_relative "smart_domain/event/mixins"
-require_relative "smart_domain/event/handler"
-require_relative "smart_domain/event/adapters/memory"
+require_relative 'smart_domain/event/base'
+require_relative 'smart_domain/event/mixins'
+require_relative 'smart_domain/event/handler'
+require_relative 'smart_domain/event/adapters/memory'
 
 # Handlers
-require_relative "smart_domain/handlers/audit_handler"
-require_relative "smart_domain/handlers/metrics_handler"
+require_relative 'smart_domain/handlers/audit_handler'
+require_relative 'smart_domain/handlers/metrics_handler'
 
 # Event registration
-require_relative "smart_domain/event/registration"
+require_relative 'smart_domain/event/registration'
 
 # Domain patterns
-require_relative "smart_domain/domain/exceptions"
-require_relative "smart_domain/domain/policy"
-require_relative "smart_domain/domain/service"
+require_relative 'smart_domain/domain/exceptions'
+require_relative 'smart_domain/domain/policy'
+require_relative 'smart_domain/domain/service'
 
 # Rails integration
-require_relative "smart_domain/integration/active_record"
-require_relative "smart_domain/integration/multi_tenancy"
+require_relative 'smart_domain/integration/active_record'
+require_relative 'smart_domain/integration/multi_tenancy'
 
 # Railtie (loads automatically if Rails is present)
-require_relative "smart_domain/railtie" if defined?(Rails::Railtie)
+require_relative 'smart_domain/railtie' if defined?(Rails::Railtie)
 
 # SmartDomain - Domain-Driven Design and Event-Driven Architecture for Rails
 #

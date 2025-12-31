@@ -41,7 +41,7 @@ module SmartDomain
       # @param event_type [String] Event type to check
       # @return [Boolean] True if event belongs to this domain
       def can_handle?(event_type)
-        return true if @domain == "*"
+        return true if @domain == '*'
 
         event_type.start_with?("#{@domain}.")
       end
@@ -49,7 +49,7 @@ module SmartDomain
       # Handle audit logging for an event
       # @param event [SmartDomain::Event::Base] Event to audit
       def handle(event)
-        action = event.event_type.split(".").last
+        action = event.event_type.split('.').last
 
         # 1. Log to Rails logger (structured)
         log_audit_event(event, action)
@@ -137,13 +137,13 @@ module SmartDomain
       def map_event_category(event_type)
         case event_type
         when /^auth\.|logged_in|logged_out|login|logout|authenticated|password/
-          "authentication"
+          'authentication'
         when /accessed|viewed|patient\./
-          "data_access"
+          'data_access'
         when /created|updated|deleted|assigned|removed/
-          "admin_action"
+          'admin_action'
         else
-          "system_event"
+          'system_event'
         end
       end
 
@@ -153,11 +153,11 @@ module SmartDomain
       def assess_risk_level(event_type)
         case event_type
         when /suspended|deleted|revoked|failed|rejected/
-          "HIGH"
+          'HIGH'
         when /updated|changed|assigned/
-          "MEDIUM"
+          'MEDIUM'
         else
-          "LOW"
+          'LOW'
         end
       end
 
@@ -165,35 +165,35 @@ module SmartDomain
       # @param event [SmartDomain::Event::Base] Event
       # @return [String, nil] Actor ID
       def extract_actor_id(event)
-        event.try(:actor_id) || event.attributes["actor_id"]
+        event.try(:actor_id) || event.attributes['actor_id']
       end
 
       # Extract ip_address from event (SecurityContextMixin)
       # @param event [SmartDomain::Event::Base] Event
       # @return [String, nil] IP address
       def extract_ip_address(event)
-        event.try(:ip_address) || event.attributes["ip_address"]
+        event.try(:ip_address) || event.attributes['ip_address']
       end
 
       # Extract user_agent from event (SecurityContextMixin)
       # @param event [SmartDomain::Event::Base] Event
       # @return [String, nil] User agent
       def extract_user_agent(event)
-        event.try(:user_agent) || event.attributes["user_agent"]
+        event.try(:user_agent) || event.attributes['user_agent']
       end
 
       # Extract old_values from event (ChangeTrackingMixin)
       # @param event [SmartDomain::Event::Base] Event
       # @return [Hash, nil] Old values
       def extract_old_values(event)
-        event.try(:old_values) || event.attributes["old_values"]
+        event.try(:old_values) || event.attributes['old_values']
       end
 
       # Extract new_values from event (ChangeTrackingMixin)
       # @param event [SmartDomain::Event::Base] Event
       # @return [Hash, nil] New values
       def extract_new_values(event)
-        event.try(:new_values) || event.attributes["new_values"]
+        event.try(:new_values) || event.attributes['new_values']
       end
 
       # Build compliance flags for audit record

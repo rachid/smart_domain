@@ -145,14 +145,12 @@ module SmartDomain
         return if @pending_domain_events.blank?
 
         @pending_domain_events.each do |event|
-          begin
-            SmartDomain::Event.bus.publish(event)
-          rescue StandardError => e
-            # Log error but don't raise (events should be fire-and-forget)
-            logger = defined?(Rails) ? Rails.logger : Logger.new($stdout)
-            logger.error "[SmartDomain] Failed to publish event: #{e.message}"
-            logger.error e.backtrace.join("\n")
-          end
+          SmartDomain::Event.bus.publish(event)
+        rescue StandardError => e
+          # Log error but don't raise (events should be fire-and-forget)
+          logger = defined?(Rails) ? Rails.logger : Logger.new($stdout)
+          logger.error "[SmartDomain] Failed to publish event: #{e.message}"
+          logger.error e.backtrace.join("\n")
         end
 
         clear_domain_events

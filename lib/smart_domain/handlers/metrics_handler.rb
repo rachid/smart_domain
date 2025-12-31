@@ -36,7 +36,7 @@ module SmartDomain
       # @param event_type [String] Event type to check
       # @return [Boolean] True if event belongs to this domain
       def can_handle?(event_type)
-        return true if @domain == "*"
+        return true if @domain == '*'
 
         event_type.start_with?("#{@domain}.")
       end

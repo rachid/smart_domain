@@ -84,7 +84,7 @@ module SmartDomain
     #   )
     class BusinessRuleError < Error
       def initialize(message, code: :business_rule_violation, details: {})
-        super(message, code: code, details: details)
+        super
       end
     end
 
@@ -134,7 +134,7 @@ module SmartDomain
     #     'User does not have permission to delete this resource'
     #   )
     class UnauthorizedError < Error
-      def initialize(message = "Unauthorized", action: nil, resource: nil)
+      def initialize(message = 'Unauthorized', action: nil, resource: nil)
         super(
           message,
           code: :unauthorized,
