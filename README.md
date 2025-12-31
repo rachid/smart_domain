@@ -1,5 +1,10 @@
 # SmartDomain
 
+[![Gem Version](https://badge.fury.io/rb/smart_domain.svg)](https://badge.fury.io/rb/smart_domain)
+[![Downloads](https://img.shields.io/gem/dt/smart_domain.svg)](https://rubygems.org/gems/smart_domain)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Ruby](https://img.shields.io/badge/ruby-%3E%3D%203.0-ruby.svg)](https://www.ruby-lang.org)
+
 **Domain-Driven Design and Event-Driven Architecture for Rails**
 
 SmartDomain brings battle-tested DDD/EDA patterns from platform to Ruby on Rails applications. It provides domain events, an event bus, generic handlers, and Rails generators for rapid domain scaffolding.
